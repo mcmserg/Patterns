@@ -1,5 +1,6 @@
 package ru.netology.delivery.data;
 
+
 import com.github.javafaker.Faker;
 import lombok.Value;
 
@@ -17,7 +18,7 @@ public class DataGenerator {
     }
 
     public static String generateCity() {
-        String[] cities = new String[]{"Майкоп", "Горно-Алтайск", "Уфа", "Улан-Удаэ", "Махачкала", "Магас", "Нальчик"};
+        String[] cities = new String[]{"Майкоп", "Горно-Алтайск", "Уфа", "Челябинск", "Махачкала", "Магас", "Нальчик"};
         return cities[new Random().nextInt(cities.length)];
     }
 
