@@ -73,51 +73,33 @@ class DeliveryTest {
 
     }
     @Test
-    @DisplayName("Should successful plan and replan meeting")
-    void shouldNegativeTesting() {
+    @DisplayName("Should FAIL - phone without country code should be validated")
+    void shouldShowErrorForInvalidPhoneFormat() {
         var validUser = DataGenerator.Registration.generateUser("ru");
-        var daysToAddForFirstMeeting = 4;
-        var firstMeetingDate = DataGenerator.generateDate(daysToAddForFirstMeeting);
-        var daysToAddForSecondMeeting = 7;
-        var secondMeetingDate = DataGenerator.generateDate(daysToAddForSecondMeeting);
+        var meetingDate = DataGenerator.generateDate(4);
+        String invalidPhone = "+"; // Без номера, только символ +
 
         $("[data-test-id='city'] input").setValue(validUser.getCity());
         $("[data-test-id='date'] input").press(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.DELETE);
-        $("[data-test-id='date'] input").setValue(firstMeetingDate);
+        $("[data-test-id='date'] input").setValue(meetingDate);
         $("[data-test-id='name'] input").setValue(validUser.getName());
-        $("[data-test-id='phone'] input").setValue(validUser.getPhone());
+        $("[data-test-id='phone'] input").setValue(invalidPhone);
         $("[data-test-id='agreement']").click();
-        $$("button").find(Condition.exactText("Запрограммировать")).click();
+        $$("button").find(Condition.exactText("Запланировать")).click();
+
+        // Проверяем, что поле ввода содержит введенный номер
+        String enteredPhone = $("[data-test-id='phone'] input").getValue();
+        Assertions.assertEquals(invalidPhone, enteredPhone, "Поле телефона должно содержать введенный номер");
+
+        // Проверяем, что появилось сообщение об ошибке для поля телефона
+        $("[data-test-id='phone'] .input__sub")
+                .should(visible, Duration.ofSeconds(5))
+                .should(Condition.text("Введите телефон в формате +7XXXXXXXXXX"));
+
+        // БАГ: Ожидаем ошибку валидации для телефона, но форма принимает его как валидный
+        // и показывает успешное планирование вместо ошибки
         $("[data-test-id='success-notification'] .notification__title")
-                .should(visible)
-                .should(Condition.text("Успешно!"));
-        $("[data-test-id='success-notification'] .notification__content")
                 .should(visible, Duration.ofSeconds(15))
-                .should(Condition.text("Встреча успешно запланирована на " + firstMeetingDate));
-
-    }
-    @Test
-    @DisplayName("Should successful plan and replan meeting")
-    void shouldNegativeTestingV2() {
-        var validUser = DataGenerator.Registration.generateUser("ru");
-        var daysToAddForFirstMeeting = 4;
-        var firstMeetingDate = DataGenerator.generateDate(daysToAddForFirstMeeting);
-        var daysToAddForSecondMeeting = 7;
-        var secondMeetingDate = DataGenerator.generateDate(daysToAddForSecondMeeting);
-
-        $("[data-test-id='city'] input").setValue(validUser.getCity());
-        $("[data-test-id='date'] input").press(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.DELETE);
-        $("[data-test-id='date'] input").setValue(firstMeetingDate);
-        $("[data-test-id=name input").setValue(validUser.getName());
-        $("[data-test-id='phone'] input").setValue(validUser.getPhone());
-        $("[data-test-id='agreement']").click();
-        $$("button").find(Condition.exactText("Запрограммировать")).click();
-        $("[data-test-id='success-notification'] .notification__title")
-                .should(visible)
                 .should(Condition.text("Успешно!"));
-        $("[data-test-id='success-notification'] .notification__content")
-                .should(visible, Duration.ofSeconds(15))
-                .should(Condition.text("Встреча успешно запланирована на " + firstMeetingDate));
-
     }
 }
